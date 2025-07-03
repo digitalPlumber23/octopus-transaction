@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class TransactionIn(BaseModel):
-    user: str
+    username: str
     transaction_id: str
     amount: float
 
