@@ -14,6 +14,10 @@ spec:
           command: ["python", "-c"]
           args:
             - |
+            
+              import subprocess
+              subprocess.run(["pip", "install", "requests"])
+
               import requests, time, uuid, random
               for i in range({{ .Values.load.totalTransactions }}):
                   payload = {
