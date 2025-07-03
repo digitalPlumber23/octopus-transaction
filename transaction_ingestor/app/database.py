@@ -22,5 +22,5 @@ async def insert_transaction(transaction: TransactionIn):
     await conn.execute("""
         INSERT INTO transactions (username, transaction_id, amount)
         VALUES ($1, $2, $3)
-    """, transaction.user, transaction.transaction_id, transaction.amount)
+    """, transaction.username, transaction.transaction_id, transaction.amount)
     await conn.close()
