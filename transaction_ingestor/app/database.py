@@ -1,10 +1,13 @@
 import asyncpg
+import os
 from app.models import TransactionIn
 
-DB_URL = "postgresql://postgres:postgres@db:5432/transactions"
+def get_db_url():
+    return f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@" \
+           f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 
 async def init_db():
-    conn = await asyncpg.connect(DB_URL)
+    conn = await asyncpg.connect(get_db_url())
     await conn.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
             user TEXT,
@@ -15,7 +18,7 @@ async def init_db():
     await conn.close()
 
 async def insert_transaction(transaction: TransactionIn):
-    conn = await asyncpg.connect(DB_URL)
+    conn = await asyncpg.connect(get_db_url())
     await conn.execute("""
         INSERT INTO transactions (user, transaction_id, amount)
         VALUES ($1, $2, $3)
