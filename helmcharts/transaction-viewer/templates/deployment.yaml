@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-viewer
+  template:
+    metadata:
+      labels:
+        app: transaction-viewer
+    spec:
+      containers:
+        - name: transaction-viewer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.env.db.host }}
+            - name: DB_PORT
+              value: {{ .Values.env.db.port }}
+            - name: DB_NAME
+              value: {{ .Values.env.db.name }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: transaction-viewer-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: transaction-viewer-secret
+                  key: DB_PASSWORD

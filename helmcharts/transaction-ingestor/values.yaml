@@ -1,0 +1,15 @@
+image:
+  repository: jserban23/transaction-ingestor
+  tag: latest
+
+service:
+  port: 80
+  targetPort: 8000
+
+env:
+  db:
+    host: transaction-db
+    port: "5432"
+    name: transactions
+    user: postgres
+    password: postgres
