@@ -19,6 +19,7 @@ spec:
               subprocess.run(["pip", "install", "requests"])
 
               import requests, time, uuid, random
+              headers = {"Host": "transaction-ingestor.com"}
               for i in range({{ .Values.load.totalTransactions }}):
                   payload = {
                       "username": f"user_{random.randint(1, 100)}",
@@ -26,7 +27,7 @@ spec:
                       "amount": round(random.uniform(10, 1000), 2)
                   }
                   try:
-                      r = requests.post("{{ .Values.load.targetUrl }}", json=payload)
+                      r = requests.post("{{ .Values.load.targetUrl }}", json=payload, headers=headers)
                       print(f"[{i+1}] Sent: {payload} -> {r.status_code}")
                   except Exception as e:
                       print(f"Error: {e}")
