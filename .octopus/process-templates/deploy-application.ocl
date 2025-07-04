@@ -1,2 +1,48 @@
 name = "deploy-application"
 description = "Template to deploy application to a target environment"
+
+parameter "appName" {
+    display_settings = {
+        Octopus.ControlType = "SingleLineText"
+    }
+    help_text = "Will also create the release-name"
+    label = "The name of the application to deploy"
+}
+
+parameter "action" {
+    display_settings = {
+        Octopus.ControlType = "Select"
+        Octopus.SelectOptions = <<-EOT
+            deploy|deploy
+            delete|delete
+            rescale|rescale
+            wipe_env|wipe_env
+            EOT
+    }
+    help_text = <<-EOT
+            Examples:
+            - deploy
+            - delete
+            - rescale
+            - wipe_env
+            EOT
+    label = "Action which the pipeline will perform"
+}
+
+parameter "strategy" {
+    display_settings = {
+        Octopus.ControlType = "Select"
+        Octopus.SelectOptions = <<-EOT
+            rolling_update|rolling-update
+            canary|canary
+            blue_green|blue-green
+            EOT
+    }
+    help_text = <<-EOT
+            Can either be
+            - rolling_update
+            - canary
+            - blue_green
+            EOT
+    label = "Strategy used for deployment"
+}
