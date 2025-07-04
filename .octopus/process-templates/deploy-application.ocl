@@ -32,6 +32,8 @@ parameter "action" {
             - wipe_env
             EOT
     label = "Action which the pipeline will perform"
+
+    value "deploy" {}
 }
 
 parameter "strategy" {
@@ -50,6 +52,8 @@ parameter "strategy" {
             - blue_green
             EOT
     label = "Strategy used for deployment"
+
+    value "rolling_update" {}
 }
 
 parameter "deploymentTarget" {
@@ -58,6 +62,14 @@ parameter "deploymentTarget" {
     }
     help_text = "Target of the deployment"
     label = "Target of the deployment"
+}
+
+parameter "replicas" {
+    display_settings = {
+        Octopus.ControlType = "SingleLineText"
+    }
+    help_text = ""
+    label = "replicas values for rescaling"
 }
 
 step "init-namespace" {
@@ -90,5 +102,29 @@ step "init-namespace" {
             Octopus.Action.Script.Syntax = "Bash"
             OctopusUseBundledTooling = "False"
         }
+    }
+}
+
+step "rescale-deployment" {
+    name = "Rescale deployment"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deploymentTarget}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "rescaling deployment"
+                NAMESPACE=$(get_octopusvariable "target.namespace")
+                
+                kubectl scale deployment $(get_octopusvariable "appName") --replicas=$(get_octopusvariable "replicas") -n $NAMESPACE
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
     }
 }
