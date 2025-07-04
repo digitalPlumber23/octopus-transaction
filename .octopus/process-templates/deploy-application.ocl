@@ -1,6 +1,11 @@
 name = "deploy-application"
 description = "Template to deploy application to a target environment"
 
+icon {
+    color = "#EF6F1F"
+    id = "bullseye-arrow"
+}
+
 parameter "appName" {
     display_settings = {
         Octopus.ControlType = "SingleLineText"
@@ -45,4 +50,45 @@ parameter "strategy" {
             - blue_green
             EOT
     label = "Strategy used for deployment"
+}
+
+parameter "deploymentTarget" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = "Target of the deployment"
+    label = "Target of the deployment"
+}
+
+step "init-namespace" {
+    name = "Init namespace"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deploymentTarget}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                
+                NAMESPACE=$(get_octopusvariable "target.namespace")
+                # Check if the namespace exists
+                if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
+                  echo "Namespace '$NAMESPACE' does not exist. Creating it..."
+                  kubectl create namespace "$NAMESPACE"
+                else
+                  echo "Namespace '$NAMESPACE' already exists."
+                fi
+                
+                # List all resources in the namespace
+                echo "Listing all resources in namespace '$NAMESPACE':"
+                kubectl get all -n "$NAMESPACE"
+                
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+    }
 }
