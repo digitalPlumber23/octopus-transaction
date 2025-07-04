@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transaction-ingestor
+  name: {{ .Release.Name }}-{{ .Values.mode }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transaction-ingestor
+      app: {{ .Release.Name }}-{{ .Values.mode }}
   template:
     metadata:
       labels:
-        app: transaction-ingestor
+        app: {{ .Release.Name }}-{{ .Values.mode }}
     spec:
       containers:
-        - name: transaction-ingestor
+        - name: {{ .Release.Name }}-{{ .Values.mode }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: {{ .Values.service.targetPort }}
@@ -27,10 +27,10 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: transaction-ingestor-secret
+                  name: {{ .Release.Name }}-{{ .Values.mode }}-secret
                   key: DB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: transaction-ingestor-secret
+                  name: {{ .Release.Name }}-{{ .Values.mode }}-secret
                   key: DB_PASSWORD

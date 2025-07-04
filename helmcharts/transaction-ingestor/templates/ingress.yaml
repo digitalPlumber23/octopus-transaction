@@ -1,0 +1,22 @@
+{{- $svcName := printf "%s-%s-svc" .Release.Name .Values.mode }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.mode }}-ingress
+  {{- if eq .Values.mode "canary" }}
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "20"
+  {{- end }}
+spec:
+  rules:
+  - host: {{ .Release.Name }}.example.com
+    http:
+      paths:
+      - path: /transaction
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $svcName }}
+            port:
+              number: 80

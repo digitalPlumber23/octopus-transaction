@@ -1,3 +1,5 @@
+mode: stable # Can be set to canary to enable canary deployment
+
 image:
   repository: jserban23/transaction-ingestor
   tag: latest
