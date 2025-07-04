@@ -6,7 +6,7 @@ metadata:
   {{- if eq .Values.mode "canary" }}
   annotations:
     nginx.ingress.kubernetes.io/canary: "true"
-    nginx.ingress.kubernetes.io/canary-weight: "20"
+    nginx.ingress.kubernetes.io/canary-weight: "{{ .Values.ingress.canaryWeight }}"
   {{- end }}
 spec:
   ingressClassName: nginx

@@ -1,5 +1,9 @@
 mode: stable # Can be set to canary to enable canary deployment
 
+
+ingress:
+  canaryWeight: 20
+
 image:
   repository: jserban23/transaction-ingestor
   tag: latest
