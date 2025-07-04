@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup():
-    print("NEW APP VERSION")
+    print("NEW APP VERSION: V2")
     await init_db()
 
 @app.post("/transaction")
