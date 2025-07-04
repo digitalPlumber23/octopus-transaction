@@ -1,0 +1,27 @@
+step "deploy-a-release" {
+    name = "Deploy a Release"
+
+    action {
+        action_type = "Octopus.DeployRelease"
+        properties = {
+            Octopus.Action.DeployRelease.DeploymentCondition = "Always"
+            Octopus.Action.DeployRelease.ProjectId = "transaction-ingestor"
+        }
+        worker_pool = "hosted-windows"
+        worker_pool_variable = ""
+    }
+}
+
+step "deploy-a-release2" {
+    name = "Deploy a Release2"
+
+    action {
+        action_type = "Octopus.DeployRelease"
+        properties = {
+            Octopus.Action.DeployRelease.DeploymentCondition = "Always"
+            Octopus.Action.DeployRelease.ProjectId = "transaction-db"
+        }
+        worker_pool = "hosted-windows"
+        worker_pool_variable = ""
+    }
+}
