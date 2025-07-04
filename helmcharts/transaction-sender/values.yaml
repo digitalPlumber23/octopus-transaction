@@ -11,4 +11,4 @@ job:
 load:
   totalTransactions: 100
   delayMs: 100
-  targetUrl: http://transaction-ingestor.com/transaction
+  targetUrl: http://132.220.15.81/transaction
