@@ -87,7 +87,7 @@ step "init-namespace" {
                 NAMESPACE=$(get_octopusvariable "target.namespace")
                 # Check if the namespace exists
                 if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
-                  echo "Namespace '$NAMESPACE' does not exist. Creating it..."
+                  echo "Namespace: '$NAMESPACE' does not exist. Creating it..."
                   kubectl create namespace "$NAMESPACE"
                 else
                   echo "Namespace '$NAMESPACE' already exists."
