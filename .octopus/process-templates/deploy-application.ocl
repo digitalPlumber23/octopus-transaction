@@ -176,7 +176,7 @@ step "deploy-application" {
     name = "Deploy application"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
-        Octopus.Step.ConditionVariableExpression = "#{if action != \"rescale\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = "#{if ToLower(action) != \"rescale\" and ToLower(action) != \"delete\" and ToLower(action) != \"wipe_env\"}true#{else}false#{/if}"
     }
 
     action {
