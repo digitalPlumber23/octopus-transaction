@@ -53,7 +53,7 @@ parameter "strategy" {
             EOT
     label = "Strategy used for deployment"
 
-    value "blue_green" {}
+    value "stable" {}
 }
 
 parameter "deploymentTarget" {
@@ -233,7 +233,7 @@ step "change-weights-to-60" {
     condition = "Variable"
     name = "Change weights to 60"
     properties = {
-        Octopus.Step.ConditionVariableExpression = " #{if action == \"canary\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
     }
 
     action {
@@ -251,7 +251,7 @@ step "deploy-application-adjust-weight-to-60" {
     name = "Deploy application - adjust weight to 60"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
-        Octopus.Step.ConditionVariableExpression = " #{if action == \"canary\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
     }
 
     action {
@@ -280,7 +280,7 @@ step "promote-canary-to-stable" {
     condition = "Variable"
     name = "Promote canary to stable"
     properties = {
-        Octopus.Step.ConditionVariableExpression = " #{if action == \"canary\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
     }
 
     action {
@@ -298,7 +298,7 @@ step "deploy-a-helm-chart" {
     name = "Promote canary to stable (live)"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
-        Octopus.Step.ConditionVariableExpression = " #{if action == \"canary\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
     }
 
     action {
@@ -320,5 +320,26 @@ step "deploy-a-helm-chart" {
             git_credential_type = "Library"
             repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
         }
+    }
+}
+
+step "delete-canary-resources" {
+    condition = "Variable"
+    name = "Delete canary resources"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deploymentTarget}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "helm uninstall -n oc-$(get_octopusvariable \"Octopus.Environment.Name\") $(get_octopusvariable \"appName\")-$(get_octopusvariable \"strategy\")"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
     }
 }
