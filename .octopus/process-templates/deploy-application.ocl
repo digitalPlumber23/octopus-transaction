@@ -294,7 +294,7 @@ step "promote-canary-to-stable" {
 
 step "deploy-a-helm-chart" {
     condition = "Variable"
-    name = "Deploy a Helm Chart"
+    name = "Promote canary to stable (live)"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
         Octopus.Step.ConditionVariableExpression = " #{if action == \"canary\"}true#{else}false#{/if}"
