@@ -132,7 +132,7 @@ step "rescale-deployment" {
         properties = {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
-                echo "rescaling deployment"
+                echo "rescaling deployment to replicas: $(get_octopusvariable "replicas")"
                 NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
                 
                 kubectl scale deployment $(get_octopusvariable "appName")-$(get_octopusvariable "strategy")-$(get_octopusvariable "strategy") --replicas=$(get_octopusvariable "replicas") -n $NAMESPACE
