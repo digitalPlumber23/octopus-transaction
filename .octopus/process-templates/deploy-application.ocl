@@ -84,13 +84,13 @@ parameter "create_namespace" {
 
 step "init-namespace" {
     condition = "Variable"
-    name = "Init namespace"
+    name = "initNamespace"
     properties = {
         Octopus.Action.TargetRoles = "#{deploymentTarget}"
         Octopus.Step.ConditionVariableExpression = "#{if create_namespace == \"true\"}true#{/if}"
     }
 
-    action {
+    action "initnamespace" {
         action_type = "Octopus.Script"
         properties = {
             Octopus.Action.RunOnServer = "false"
@@ -157,7 +157,7 @@ step "deploy-application" {
             Octopus.Action.GitRepository.Source = "External"
             Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy}"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
-            Octopus.Action.Helm.Namespace = "{Octopus.Action[init-namespace].Output.octopus_namespace}"
+            Octopus.Action.Helm.Namespace = "#{Octopus.Action[initnamespace].Output.octopus_namespace}"
             Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
             Octopus.Action.Helm.ResetValues = "True"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
