@@ -258,6 +258,7 @@ step "deploy-application-adjust-weight-to-60" {
         action_type = "Octopus.HelmChartUpgrade"
         properties = {
             Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy} --set ingress.canaryWeight=60"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
             Octopus.Action.Helm.Namespace = "oc-#{Octopus.Environment.Name}"
             Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
