@@ -1,8 +1,8 @@
-{{- $svcName := printf "%s-%s" .Release.Name .Values.mode }}
+{{- $svcName := printf "%s" .Release.Name }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.mode }}-ingress
+  name: {{ .Release.Name }}-ingress
   {{- if eq .Values.mode "canary" }}
   annotations:
     nginx.ingress.kubernetes.io/canary: "true"

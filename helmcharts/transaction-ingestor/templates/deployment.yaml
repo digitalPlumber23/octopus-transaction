@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.mode }}
+  name: {{ .Release.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.mode }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.mode }}
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Release.Name }}-{{ .Values.mode }}
+        - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: {{ .Values.service.targetPort }}
@@ -27,10 +27,10 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-{{ .Values.mode }}-secret
+                  name: {{ .Release.Name }}-secret
                   key: DB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-{{ .Values.mode }}-secret
+                  name: {{ .Release.Name }}-secret
                   key: DB_PASSWORD
