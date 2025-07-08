@@ -157,7 +157,7 @@ step "deploy-application" {
             Octopus.Action.GitRepository.Source = "External"
             Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy}"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
-            Octopus.Action.Helm.Namespace = "#{Octopus.Action[initnamespace].Output.octopus_namespace}"
+            Octopus.Action.Helm.Namespace = "oc-#{Octopus.Environment.Name}"
             Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
             Octopus.Action.Helm.ResetValues = "True"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
