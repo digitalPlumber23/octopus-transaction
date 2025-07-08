@@ -123,6 +123,7 @@ step "delete-deployment" {
     condition = "Variable"
     name = "Delete deployment"
     properties = {
+        Octopus.Action.TargetRoles = "#{deploymentTarget}"
         Octopus.Step.ConditionVariableExpression = " #{if action == \"delete\"}true#{/if}"
     }
 
