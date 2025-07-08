@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transaction-viewer
+  name: {{ .Release.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transaction-viewer
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: transaction-viewer
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: transaction-viewer
+        - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: {{ .Values.service.targetPort }}
@@ -27,10 +27,10 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: transaction-viewer-secret
+                  name: {{ .Release.Name }}-secret
                   key: DB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: transaction-viewer-secret
+                  name: {{ .Release.Name }}-secret
                   key: DB_PASSWORD
