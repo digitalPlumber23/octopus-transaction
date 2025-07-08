@@ -40,20 +40,20 @@ parameter "strategy" {
     display_settings = {
         Octopus.ControlType = "Select"
         Octopus.SelectOptions = <<-EOT
-            rolling_update|rolling-update
+            stable|rolling-update
             canary|canary
             blue_green|blue-green
             EOT
     }
     help_text = <<-EOT
             Can either be
-            - rolling_update
+            - stable
             - canary
             - blue_green
             EOT
     label = "Strategy used for deployment"
 
-    value "rolling_update" {}
+    value "blue_green" {}
 }
 
 parameter "deploymentTarget" {
@@ -83,9 +83,11 @@ parameter "create_namespace" {
 }
 
 step "init-namespace" {
+    condition = "Variable"
     name = "Init namespace"
     properties = {
         Octopus.Action.TargetRoles = "#{deploymentTarget}"
+        Octopus.Step.ConditionVariableExpression = "#{if create_namespace == \"true\"}true#{/if}"
     }
 
     action {
@@ -94,7 +96,7 @@ step "init-namespace" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 
-                NAMESPACE=$(get_octopusvariable "target.namespace")
+                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
                 # Check if the namespace exists
                 if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
                   echo "Namespace: '$NAMESPACE' does not exist. Creating it..."
@@ -107,6 +109,8 @@ step "init-namespace" {
                 echo "Listing all resources in namespace '$NAMESPACE':"
                 kubectl get all -n "$NAMESPACE"
                 
+                set_octopusvariable "octopus_namespace" $NAMESPACE
+                
                 EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
@@ -116,9 +120,11 @@ step "init-namespace" {
 }
 
 step "rescale-deployment" {
+    condition = "Variable"
     name = "Rescale deployment"
     properties = {
         Octopus.Action.TargetRoles = "#{deploymentTarget}"
+        Octopus.Step.ConditionVariableExpression = "#{if action == \"rescale\"}true#{/if}"
     }
 
     action {
@@ -129,12 +135,41 @@ step "rescale-deployment" {
                 echo "rescaling deployment"
                 NAMESPACE=$(get_octopusvariable "target.namespace")
                 
-                kubectl scale deployment $(get_octopusvariable "appName") --replicas=$(get_octopusvariable "replicas") -n $NAMESPACE
+                kubectl scale deployment $(get_octopusvariable "appName")-$(get_octopusvariable "strategy") --replicas=$(get_octopusvariable "replicas") -n $NAMESPACE
                 EOT
             Octopus.Action.Script.ScriptSource = "Inline"
             Octopus.Action.Script.Syntax = "Bash"
             OctopusUseBundledTooling = "False"
         }
         worker_pool_variable = ""
+    }
+}
+
+step "deploy-application" {
+    name = "Deploy application"
+    properties = {
+        Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
+    }
+
+    action {
+        action_type = "Octopus.HelmChartUpgrade"
+        properties = {
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy}"
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
+            Octopus.Action.Helm.Namespace = "{Octopus.Action[init-namespace].Output.octopus_namespace}"
+            Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+        }
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
+        }
     }
 }
