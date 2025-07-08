@@ -281,7 +281,7 @@ step "promote-canary-to-stable" {
     condition = "Variable"
     name = "Promote canary to stable"
     properties = {
-        Octopus.Step.ConditionVariableExpression = "#{if Octopus.Action[deploy-application-adjust-weight-to-60].StatusCode == \"Succeeded\" and strategy == \"canary\"}true#{else}false#{/if}"
+        Octopus.Step.ConditionVariableExpression = "#{if Octopus.Step[deploy-application-adjust-weight-to-60].StatusCode == \"Succeeded\" and strategy == \"canary\"}true#{else}false#{/if}"
     }
 
     action {
