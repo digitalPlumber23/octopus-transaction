@@ -119,6 +119,31 @@ step "init-namespace" {
     }
 }
 
+step "delete-deployment" {
+    condition = "Variable"
+    name = "Delete deployment"
+    properties = {
+        Octopus.Step.ConditionVariableExpression = " #{if action == \"delete\"}true#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "deleting deployment $(get_octopusvariable "appName")-$(get_octopusvariable "strategy")"
+                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
+                
+                helm uninstall $(get_octopusvariable "appName")-$(get_octopusvariable "strategy") -n $NAMESPACE
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
+
 step "rescale-deployment" {
     condition = "Variable"
     name = "Rescale deployment"
