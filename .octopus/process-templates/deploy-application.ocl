@@ -146,9 +146,11 @@ step "rescale-deployment" {
 }
 
 step "deploy-application" {
+    condition = "Variable"
     name = "Deploy application"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
+        Octopus.Step.ConditionVariableExpression = "#{if action == \"rescale\"}false#{/if}"
     }
 
     action {
