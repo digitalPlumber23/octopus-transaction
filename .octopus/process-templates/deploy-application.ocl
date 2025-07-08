@@ -70,6 +70,16 @@ parameter "replicas" {
     }
     help_text = ""
     label = "replicas values for rescaling"
+
+    value "" {}
+}
+
+parameter "create_namespace" {
+    display_settings = {
+        Octopus.ControlType = "SingleLineText"
+    }
+    help_text = ""
+    label = "Init namespace creation?"
 }
 
 step "init-namespace" {
