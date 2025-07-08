@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: "{{ .Release.Name }}-{{ .Values.version }}"
 spec:
   replicas: 1
   selector:
@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        version: {{ .Values.version }}
     spec:
       containers:
         - name: {{ .Release.Name }}
