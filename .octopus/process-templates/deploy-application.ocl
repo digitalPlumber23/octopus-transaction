@@ -357,7 +357,7 @@ step "deploy-blue-green" {
         action_type = "Octopus.HelmChartUpgrade"
         properties = {
             Octopus.Action.GitRepository.Source = "External"
-            Octopus.Action.Helm.AdditionalArgs = "--set service.enabled=false  --set isActive=false"
+            Octopus.Action.Helm.AdditionalArgs = "--set service.enabled=false  --set isActive=disabled"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
             Octopus.Action.Helm.Namespace = "oc-#{Octopus.Environment.Name}"
             Octopus.Action.Helm.ReleaseName = "#{appName}-green"
@@ -414,8 +414,8 @@ step "switch-traffic" {
                 
                 
                 echo "Setting active label for green deployment"
-                kubectl label deployment $(get_octopusvariable "appName")-green active=true --overwrite
-                kubectl label deployment $(get_octopusvariable "appName")-stable active=false --overwrite
+                kubectl label deployment $(get_octopusvariable "appName")-green active=enabled --overwrite
+                kubectl label deployment $(get_octopusvariable "appName")-stable active=disabled --overwrite
                 
                 EOT
             Octopus.Action.Script.ScriptSource = "Inline"
