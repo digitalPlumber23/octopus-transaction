@@ -344,3 +344,84 @@ step "delete-canary-resources" {
         worker_pool_variable = ""
     }
 }
+
+step "deploy-blue-green" {
+    condition = "Variable"
+    name = "Deploy blue-green"
+    properties = {
+        Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"blue-green\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.HelmChartUpgrade"
+        properties = {
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.AdditionalArgs = "--set service.enabled=false "
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
+            Octopus.Action.Helm.Namespace = "oc-#{Octopus.Environment.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{appName}-green"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+        }
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
+        }
+    }
+}
+
+step "switch-traffic-to-green-deployment" {
+    condition = "Variable"
+    name = "Switch traffic to green deployment?"
+    properties = {
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"blue-green\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Manual"
+        properties = {
+            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
+            Octopus.Action.Manual.Instructions = "Approving this step will switch traffic to green deployment"
+        }
+        worker_pool_variable = ""
+    }
+}
+
+step "switch-traffic" {
+    condition = "Variable"
+    name = "Switch traffic"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deploymentTarget}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"blue-green\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
+                
+                svcName=$(kubectl get svc -n "$ns" --no-headers -o custom-columns=":metadata.name" | grep "^$(get_octopusvariable "appName")")
+                
+                echo "Matched service: $svcName"
+                
+                
+                echo "Setting active label for green deployment"
+                kubectl label deployment $(get_octopusvariable "appName")-green active=true --overwrite
+                kubectl label deployment $(get_octopusvariable "appName")-stable active=false --overwrite
+                
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
