@@ -414,8 +414,8 @@ step "switch-traffic" {
                 
                 
                 echo "Setting active label for green deployment"
-                kubectl label deployment $(get_octopusvariable "appName")-green active=enabled --overwrite
-                kubectl label deployment $(get_octopusvariable "appName")-stable active=disabled --overwrite
+                kubectl label deployment $(get_octopusvariable "appName")-green active=enabled --overwrite -n $NAMESPACE
+                kubectl label deployment $(get_octopusvariable "appName")-stable active=disabled --overwrite -n $NAMESPACE
                 
                 EOT
             Octopus.Action.Script.ScriptSource = "Inline"
