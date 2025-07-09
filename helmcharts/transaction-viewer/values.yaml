@@ -5,6 +5,7 @@ image:
 service:
   port: 80
   targetPort: 8000
+  enabled: true
 
 env:
   db:
@@ -15,5 +16,3 @@ env:
     password: postgres
 
 isActive: true
-service:
-  enabled: true
