@@ -6,7 +6,6 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   selector:
-    app: {{ .Release.Name }}
     active: enabled
   ports:
     - port: {{ .Values.service.port }}
