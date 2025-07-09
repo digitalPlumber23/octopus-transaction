@@ -203,7 +203,7 @@ step "deploy-application" {
     name = "Deploy application"
     properties = {
         Octopus.Action.TargetRoles = "container-hosting-platform-k8s"
-        Octopus.Step.ConditionVariableExpression = "#{if action == \"deploy\"}true#{else}false#{/if} #{if strategy == \"blue-green\"}false#{else}true#{/if}"
+        Octopus.Step.ConditionVariableExpression = "#{if action == \"deploy\" and strategy != \"blue-green\"}true#{else}false#{/if}"
     }
 
     action {
