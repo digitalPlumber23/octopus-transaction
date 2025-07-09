@@ -357,7 +357,7 @@ step "deploy-blue-green" {
         action_type = "Octopus.HelmChartUpgrade"
         properties = {
             Octopus.Action.GitRepository.Source = "External"
-            Octopus.Action.Helm.AdditionalArgs = "--set service.enabled=false "
+            Octopus.Action.Helm.AdditionalArgs = "--set service.enabled=false  --set isActive=false"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
             Octopus.Action.Helm.Namespace = "oc-#{Octopus.Environment.Name}"
             Octopus.Action.Helm.ReleaseName = "#{appName}-green"
