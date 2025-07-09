@@ -13,3 +13,5 @@ env:
     name: transactions
     user: postgres
     password: postgres
+
+isActive: true
