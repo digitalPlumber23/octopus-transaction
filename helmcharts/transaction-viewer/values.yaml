@@ -15,4 +15,4 @@ env:
     user: postgres
     password: postgres
 
-isActive: true
+isActive: enabled
