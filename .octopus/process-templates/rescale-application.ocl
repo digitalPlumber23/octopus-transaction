@@ -1,6 +1,11 @@
 name = "rescale-application"
 description = "[RUNBOOK] template used in rescaling the application deployment to a specified number of replicas"
 
+icon {
+    color = "#EF6F1F"
+    id = "expand-alt"
+}
+
 parameter "appName" {
     display_settings = {
         Octopus.ControlType = "SingleLineText"
