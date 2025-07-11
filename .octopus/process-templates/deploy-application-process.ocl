@@ -1,2 +1,47 @@
 name = "deploy-application-process"
 description = "Process used to deploy an application"
+
+parameter "appName" {
+    display_settings = {
+        Octopus.ControlType = "SingleLineText"
+    }
+    help_text = ""
+    label = "Name of the application"
+}
+
+parameter "deployment_target" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = "Target of the deployment"
+}
+
+parameter "strategy" {
+    display_settings = {
+        Octopus.ControlType = "Select"
+        Octopus.SelectOptions = <<-EOT
+            live|live deployment
+            canary|canary deployment
+            blue-green|blue-green deployment
+            EOT
+    }
+    help_text = ""
+    label = "Deployment strategy used"
+}
+
+step "run-a-script" {
+    name = "Run a Script"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "echo \"TO BE IMPLEMENTED\""
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
