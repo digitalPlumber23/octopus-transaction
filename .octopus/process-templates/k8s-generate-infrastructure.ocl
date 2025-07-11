@@ -26,7 +26,7 @@ step "generate-deployment-infrastructure" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 echo "Checking if the namespace required for deployment exist."
-                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
+                NAMESPACE=$(get_octopusvariable "Octopus.Environment.Name")
                 
                 echo "Retrieved namespace name: $NAMESPACE"
                 
