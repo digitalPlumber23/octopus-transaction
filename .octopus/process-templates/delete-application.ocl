@@ -1,2 +1,57 @@
 name = "delete-application"
 description = "[RUNBOOK] Used in deleting applications using helm uninstall"
+
+icon {
+    color = "#EF6F1F"
+    id = "ban"
+}
+
+parameter "appName" {
+    display_settings = {
+        Octopus.ControlType = "SingleLineText"
+    }
+    help_text = ""
+    label = "Application Name"
+}
+
+parameter "strategy" {
+    display_settings = {
+        Octopus.ControlType = "Select"
+        Octopus.SelectOptions = <<-EOT
+            live|live deployment
+            canary|canary deployment
+            blue-green|blue-green deployment
+            EOT
+    }
+    help_text = ""
+    label = ""
+}
+
+parameter "deployment_target" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = "Target of the deployment"
+}
+
+step "delete-application" {
+    name = "delete-application"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "deleting deployment $(get_octopusvariable "appName")-$(get_octopusvariable "strategy")"
+                NAMESPACE=$(get_octopusvariable "Octopus.Environment.Name")
+                
+                helm uninstall $(get_octopusvariable "appName")-$(get_octopusvariable "strategy") -n $NAMESPACE
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
