@@ -37,6 +37,9 @@ parameter "deployment_target" {
 
 step "delete-application" {
     name = "delete-application"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deployment_target}"
+    }
 
     action {
         action_type = "Octopus.Script"
