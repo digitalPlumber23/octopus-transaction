@@ -1,6 +1,11 @@
 name = "k8s-generate-infrastructure"
 description = "[RUNBOOK] Process template which generates the needed infrastructure changes so that deployments can be performed"
 
+icon {
+    color = "#5E2EA2"
+    id = "wrench"
+}
+
 step "generate-deployment-infrastructure" {
     name = "generate-deployment-infrastructure"
 
