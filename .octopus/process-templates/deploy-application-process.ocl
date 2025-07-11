@@ -12,6 +12,8 @@ parameter "appName" {
     }
     help_text = ""
     label = "Name of the application"
+
+    value "" {}
 }
 
 parameter "deployment_target" {
@@ -35,18 +37,33 @@ parameter "strategy" {
     label = "Deployment strategy used"
 }
 
-step "run-a-script" {
-    name = "Run a Script"
+step "deploy-application" {
+    condition = "Variable"
+    name = "deploy-application"
+    properties = {
+        Octopus.Action.TargetRoles = "container-hosting-platform"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"live\"}true#{/if}#{if strategy == \"canary\"}true#{/if}"
+    }
 
     action {
-        action_type = "Octopus.Script"
+        action_type = "Octopus.HelmChartUpgrade"
         properties = {
-            Octopus.Action.RunOnServer = "false"
-            Octopus.Action.Script.ScriptBody = "echo \"TO BE IMPLEMENTED\""
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy}"
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
+            Octopus.Action.Helm.Namespace = "#{Octopus.Environment.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
         }
         worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
+        }
     }
 }
