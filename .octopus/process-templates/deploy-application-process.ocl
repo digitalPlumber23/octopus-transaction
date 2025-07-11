@@ -1,6 +1,11 @@
 name = "deploy-application-process"
 description = "Process used to deploy an application"
 
+icon {
+    color = "#EF6F1F"
+    id = "caret-square-up"
+}
+
 parameter "appName" {
     display_settings = {
         Octopus.ControlType = "SingleLineText"
