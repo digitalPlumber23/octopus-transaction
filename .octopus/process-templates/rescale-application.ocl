@@ -1,0 +1,2 @@
+name = "rescale-application"
+description = "[RUNBOOK] template used in rescaling the application deployment to a specified number of replicas"
