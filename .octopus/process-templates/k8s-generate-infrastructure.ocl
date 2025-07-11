@@ -16,6 +16,9 @@ parameter "deployment_target" {
 
 step "generate-deployment-infrastructure" {
     name = "generate-deployment-infrastructure"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deployment_target}"
+    }
 
     action {
         action_type = "Octopus.Script"
