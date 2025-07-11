@@ -55,7 +55,7 @@ step "rescale-deployment" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 echo "gathering namespace used for rescaling..."
-                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
+                NAMESPACE=$(get_octopusvariable "Octopus.Environment.Name")
                 echo "retrieved namespace: $NAMESPACE"
                 
                 
