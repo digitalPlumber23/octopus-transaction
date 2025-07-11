@@ -1,2 +1,37 @@
 name = "k8s-generate-infrastructure"
 description = "[RUNBOOK] Process template which generates the needed infrastructure changes so that deployments can be performed"
+
+step "generate-deployment-infrastructure" {
+    name = "generate-deployment-infrastructure"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                echo "Checking if the namespace required for deployment exist."
+                NAMESPACE=oc-$(get_octopusvariable "Octopus.Environment.Name")
+                
+                echo "Retrieved namespace name: $NAMESPACE"
+                
+                
+                # Check if the namespace exists
+                if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
+                  echo "Namespace: '$NAMESPACE' does not exist. Creating it..."
+                  kubectl create namespace "$NAMESPACE"
+                else
+                  echo "Namespace '$NAMESPACE' already exists."
+                fi
+                
+                # List all resources in the namespace
+                echo "Listing all resources in namespace '$NAMESPACE':"
+                kubectl get all -n "$NAMESPACE"
+                
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
