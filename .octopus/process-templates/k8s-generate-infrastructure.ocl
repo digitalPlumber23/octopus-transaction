@@ -33,11 +33,12 @@ step "generate-deployment-infrastructure" {
                 
                 # Check if the namespace exists
                 if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
-                  echo "Namespace: '$NAMESPACE' does not exist. Creating it..."
-                  kubectl create namespace "$NAMESPACE"
+                  echo "Namespace: '$NAMESPACE' does not exist. Creating it..."
+                  kubectl create namespace "$NAMESPACE"
                 else
-                  echo "Namespace '$NAMESPACE' already exists."
+                  echo "Namespace '$NAMESPACE' already exists."
                 fi
+                
                 
                 # List all resources in the namespace
                 echo "Listing all resources in namespace '$NAMESPACE':"
