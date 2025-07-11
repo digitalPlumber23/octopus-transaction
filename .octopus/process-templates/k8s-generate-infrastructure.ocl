@@ -6,6 +6,14 @@ icon {
     id = "wrench"
 }
 
+parameter "deployment_target" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = "Target of the deployment"
+}
+
 step "generate-deployment-infrastructure" {
     name = "generate-deployment-infrastructure"
 
