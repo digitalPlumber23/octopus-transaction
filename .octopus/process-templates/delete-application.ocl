@@ -1,0 +1,2 @@
+name = "delete-application"
+description = "[RUNBOOK] Used in deleting applications using helm uninstall"
