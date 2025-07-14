@@ -164,3 +164,24 @@ step "promote-canary" {
         }
     }
 }
+
+step "cleanup-namespace" {
+    condition = "Variable"
+    name = "cleanup-namespace"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deployment_target}"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "helm uninstall -n $(get_octopusvariable \"Octopus.Environment.Name\") $(get_octopusvariable \"appName\")-$(get_octopusvariable \"strategy\")"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
+    }
+}
