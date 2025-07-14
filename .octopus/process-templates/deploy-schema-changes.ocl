@@ -8,3 +8,44 @@ icon {
     color = "#EF6F1F"
     id = "exchange-alt"
 }
+
+parameter "deployment_target" {
+    display_settings = {
+        Octopus.ControlType = "TargetTags"
+    }
+    help_text = ""
+    label = "Target of the deployment"
+}
+
+step "deploy-database-schema-changes" {
+    name = "deploy-database-schema-changes"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deployment_target}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = <<-EOT
+                # Download changelog
+                curl -o add_status_column.xml https://github.com/digitalPlumber23/octopus-transaction/main/schema_changes/add_status_column.xml
+                
+                
+                # Run Liquibase using Docker
+                docker run --rm \
+                  -v $(pwd):/liquibase/changelog \
+                  liquibase/liquibase:latest \
+                  --changeLogFile=changelog/add_status_column.xml \
+                  --url=jdbc:postgresql://transaction-db-live:5432/transactions \
+                  --username=postgres \
+                  --password=postgres \
+                  update
+                
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+    }
+}
