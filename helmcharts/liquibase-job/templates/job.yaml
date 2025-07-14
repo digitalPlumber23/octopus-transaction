@@ -13,12 +13,13 @@ spec:
             - name: changelog-volume
               mountPath: /liquibase/changelog
               readOnly: true
-          args:
-            - "--url=jdbc:postgresql://{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
-            - "--username={{ .Values.postgres.username }}"
-            - "--password={{ .Values.postgres.password }}"
-            - "--changeLogFile={{ .Values.changelogFile }}"
-            - "update"
+              args:
+                - "--searchPath=/liquibase/changelog"
+                - "--changeLogFile=changelog.xml"
+                - "--url=jdbc:postgresql://{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+                - "--username={{ .Values.postgres.username }}"
+                - "--password={{ .Values.postgres.password }}"
+                - "update"
       restartPolicy: Never
       volumes:
         - name: changelog-volume
