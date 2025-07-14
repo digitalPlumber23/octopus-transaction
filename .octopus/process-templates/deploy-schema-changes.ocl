@@ -29,10 +29,12 @@ step "deploy-database-schema-changes" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 # Download changelog
-                curl -o add_status_column.xml https://github.com/digitalPlumber23/octopus-transaction/main/schema_changes/add_status_column.xml
+                file_name="add_status_column.xml"
+                curl -o $file_name  https://github.com/digitalPlumber23/octopus-transaction/main/schema_changes/$file_name
                 
                 echo "Listing contents"
                 ls -l
+                cat $file_name
                 
                 # Run Liquibase using Docker
                 docker run --rm \
