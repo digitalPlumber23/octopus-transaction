@@ -1,5 +1,5 @@
 image:
-  repository: jserban23/liquibase
+  repository: liquibase
   tag: latest
   pullPolicy: IfNotPresent
 
