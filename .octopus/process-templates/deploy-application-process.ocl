@@ -67,3 +67,100 @@ step "deploy-application" {
         }
     }
 }
+
+step "weights-manual-intervention" {
+    condition = "Variable"
+    name = "weights-manual-intervention"
+    properties = {
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Manual"
+        properties = {
+            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
+            Octopus.Action.Manual.Instructions = "Approving this step will change the canary deployment weight to 60."
+            Octopus.Action.Manual.ResponsibleTeamIds = "global/everyone"
+        }
+        worker_pool_variable = ""
+    }
+}
+
+step "change-weights-60" {
+    condition = "Variable"
+    name = "change-weights-60"
+    properties = {
+        Octopus.Action.TargetRoles = "container-hosting-platform"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.HelmChartUpgrade"
+        properties = {
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.AdditionalArgs = "--set mode=#{strategy} --set ingress.canaryWeight=60"
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
+            Octopus.Action.Helm.Namespace = "#{Octopus.Environment.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{appName}-#{strategy}"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+        }
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
+        }
+    }
+}
+
+step "promote-canary-manual-intervention" {
+    condition = "Variable"
+    name = "promote-canary-manual-intervention"
+    properties = {
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.Manual"
+        properties = {
+            Octopus.Action.Manual.BlockConcurrentDeployments = "False"
+            Octopus.Action.Manual.Instructions = "Approving this step will promote the canary release to LIVE"
+            Octopus.Action.Manual.ResponsibleTeamIds = "global/everyone"
+        }
+        worker_pool_variable = ""
+    }
+}
+
+step "promote-canary" {
+    condition = "Variable"
+    name = "promote-canary"
+    properties = {
+        Octopus.Action.TargetRoles = "container-hosting-platform"
+        Octopus.Step.ConditionVariableExpression = " #{if strategy == \"canary\"}true#{else}false#{/if}"
+    }
+
+    action {
+        action_type = "Octopus.HelmChartUpgrade"
+        properties = {
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/#{appName}/"
+            Octopus.Action.Helm.Namespace = "#{Octopus.Environment.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{appName}-live"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+        }
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
+        }
+    }
+}
