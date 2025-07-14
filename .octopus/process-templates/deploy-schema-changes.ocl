@@ -29,7 +29,7 @@ step "deploy-schema-changes" {
             Octopus.Action.GitRepository.Source = "External"
             Octopus.Action.Helm.ChartDirectory = "helmcharts/liquibase-job/"
             Octopus.Action.Helm.Namespace = "#{Octopus.Environment.Name}"
-            Octopus.Action.Helm.ReleaseName = "#{Octopus.Project.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{Octopus.Project.Name}-liquibase-schema-changes"
             Octopus.Action.Helm.ResetValues = "True"
             Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
             Octopus.Action.Script.ScriptSource = "GitRepository"
@@ -42,5 +42,24 @@ step "deploy-schema-changes" {
             git_credential_type = "Library"
             repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
         }
+    }
+}
+
+step "cleanup-namespace" {
+    name = "cleanup-namespace"
+    properties = {
+        Octopus.Action.TargetRoles = "#{deployment_target}"
+    }
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.RunOnServer = "false"
+            Octopus.Action.Script.ScriptBody = "helm uninstall #{Octopus.Project.Name}-liquibase-schema-changes -n $(get_octopusvariable \"Octopus.Environment.Name\")"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+            OctopusUseBundledTooling = "False"
+        }
+        worker_pool_variable = ""
     }
 }
