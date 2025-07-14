@@ -1,0 +1,5 @@
+name = "deploy-schema-changes"
+description = <<-EOT
+        Runbook template used to deploy schema changes using:
+        - Liquibase
+        EOT
