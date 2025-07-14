@@ -17,44 +17,30 @@ parameter "deployment_target" {
     label = "Target of the deployment"
 }
 
-step "deploy-database-schema-changes" {
-    name = "deploy-database-schema-changes"
+step "deploy-schema-changes" {
+    name = "deploy-schema-changes"
     properties = {
-        Octopus.Action.TargetRoles = "#{deployment_target}"
+        Octopus.Action.TargetRoles = "container-hosting-platform"
     }
 
     action {
-        action_type = "Octopus.Script"
+        action_type = "Octopus.HelmChartUpgrade"
         properties = {
-            Octopus.Action.RunOnServer = "false"
-            Octopus.Action.Script.ScriptBody = <<-EOT
-                #!/bin/bash
-                
-                # Download changelog
-                curl -L -o add_status_collumn.xml https://raw.githubusercontent.com/digitalPlumber23/octopus-transaction/main/schema_changes/add_status_collumn.xml
-                
-                echo "Listing contents"
-                ls -l
-                cat add_status_collumn.xml
-                
-                
-                # Login to Docker using Octopus variables
-                echo "#{Octopus.Action.Package.Feed.Password}" | docker login -u "#{Octopus.Action.Package.Feed.Username}" --password-stdin
-                
-                # Run your image
-                docker run --rm \
-                  -v "$(pwd)":/liquibase/changelog \
-                  jserban23/liquibase:latest \
-                  --changeLogFile=/liquibase/changelog/add_status_collumn.xml \
-                  --url=jdbc:postgresql://transaction-db-live:5432/transactions \
-                  --username=postgres \
-                  --password=postgres \
-                  update
-                
-                EOT
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-            OctopusUseBundledTooling = "False"
+            Octopus.Action.GitRepository.Source = "External"
+            Octopus.Action.Helm.ChartDirectory = "helmcharts/liquibase-job/"
+            Octopus.Action.Helm.Namespace = "#{Octopus.Environment.Name}"
+            Octopus.Action.Helm.ReleaseName = "#{Octopus.Project.Name}"
+            Octopus.Action.Helm.ResetValues = "True"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Script.ScriptSource = "GitRepository"
+        }
+        worker_pool_variable = ""
+
+        git_dependencies {
+            default_branch = "main"
+            git_credential_id = "GitCredentials-41"
+            git_credential_type = "Library"
+            repository_uri = "https://github.com/digitalPlumber23/octopus-transaction.git"
         }
     }
 }
