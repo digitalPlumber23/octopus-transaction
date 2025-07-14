@@ -14,7 +14,7 @@ service:
 
 env:
   db:
-    host: transaction-db-stable
+    host: transaction-db-live
     port: "5432"
     name: transactions
     user: postgres
