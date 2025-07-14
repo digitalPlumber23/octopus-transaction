@@ -3,3 +3,8 @@ description = <<-EOT
         Runbook template used to deploy schema changes using:
         - Liquibase
         EOT
+
+icon {
+    color = "#EF6F1F"
+    id = "exchange-alt"
+}
