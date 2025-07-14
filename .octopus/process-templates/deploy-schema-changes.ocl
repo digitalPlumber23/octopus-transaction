@@ -31,6 +31,8 @@ step "deploy-database-schema-changes" {
                 # Download changelog
                 curl -o add_status_column.xml https://github.com/digitalPlumber23/octopus-transaction/main/schema_changes/add_status_column.xml
                 
+                echo "Listing contents"
+                ls -l
                 
                 # Run Liquibase using Docker
                 docker run --rm \
