@@ -37,6 +37,9 @@ step "deploy-database-schema-changes" {
                 ls -l
                 cat add_status_collumn.xml
                 
+                
+                docker pull liquibase/liquibase:latest
+                
                 # Run Liquibase using Docker
                 docker run --rm \
                   -v "$(pwd)":/liquibase/changelog \
