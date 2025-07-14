@@ -57,27 +57,7 @@ step "cleanup-namespace" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 #!/bin/bash
-                
-                RELEASE_NAME=$(get_octopusvariable "Octopus.Project.Name")-liquibase-schema-changes
-                NAMESPACE="$(get_octopusvariable "Octopus.Environment.Name")"
-                
-                # Find the Job name associated with the Helm release
-                JOB_NAME=$(kubectl get jobs -n "$NAMESPACE" -l "release=$RELEASE_NAME" -o jsonpath="{.items[0].metadata.name}")
-                
-                if [ -z "$JOB_NAME" ]; then
-                  echo "No job found for release $RELEASE_NAME"
-                  exit 1
-                fi
-                
-                echo "Waiting for job $JOB_NAME to complete..."
-                kubectl wait --for=condition=complete --timeout=600s job/$JOB_NAME -n "$NAMESPACE"
-                
-                # Optional: uninstall the release after job completion
-                helm uninstall "$RELEASE_NAME" -n "$NAMESPACE"
-                
-                
-                
-                
+                sleep 60
                 
                 helm uninstall #{Octopus.Project.Name}-liquibase-schema-changes -n $(get_octopusvariable "Octopus.Environment.Name")
                 EOT
