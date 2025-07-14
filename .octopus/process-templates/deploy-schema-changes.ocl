@@ -38,12 +38,13 @@ step "deploy-database-schema-changes" {
                 cat add_status_collumn.xml
                 
                 
-                docker pull liquibase/liquibase:latest
+                # Login to Docker using Octopus variables
+                echo "#{Octopus.Action.Package.Feed.Password}" | docker login -u "#{Octopus.Action.Package.Feed.Username}" --password-stdin
                 
-                # Run Liquibase using Docker
+                # Run your image
                 docker run --rm \
                   -v "$(pwd)":/liquibase/changelog \
-                  liquibase/liquibase:latest \
+                  jserban23/liquibase:latest \
                   --changeLogFile=/liquibase/changelog/add_status_collumn.xml \
                   --url=jdbc:postgresql://transaction-db-live:5432/transactions \
                   --username=postgres \
