@@ -4,4 +4,4 @@ metadata:
   name: liquibase-changelog
 data:
   changelog.xml: |
-{{ .Files.Get "changelog.xml" | indent 4 }}
+{{ .Files.Get "files/changelog.xml" | quote }}
