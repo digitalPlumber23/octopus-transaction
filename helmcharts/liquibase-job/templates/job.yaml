@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: liquibase-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: liquibase
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: changelog-volume
+              mountPath: /liquibase/changelog
+              readOnly: true
+          env:
+            - name: LIQUIBASE_URL
+              value: "jdbc:postgresql://{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+            - name: LIQUIBASE_USERNAME
+              value: "{{ .Values.postgres.username }}"
+            - name: LIQUIBASE_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+          command: ["liquibase"]
+          args: ["--changeLogFile={{ .Values.changelogFile }}", "update"]
+      restartPolicy: Never
+      volumes:
+        - name: changelog-volume
+          configMap:
+            name: liquibase-changelog
+  backoffLimit: 1

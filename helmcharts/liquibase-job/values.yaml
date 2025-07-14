@@ -1,0 +1,13 @@
+image:
+  repository: jserban23/liquibase
+  tag: latest
+  pullPolicy: IfNotPresent
+
+postgres:
+  host: transaction-db-live
+  port: 5432
+  database: transactions
+  username: postgres
+  password: postgres
+
+changelogFile: /liquibase/changelog/changelog.xml
