@@ -29,18 +29,18 @@ step "deploy-database-schema-changes" {
             Octopus.Action.RunOnServer = "false"
             Octopus.Action.Script.ScriptBody = <<-EOT
                 # Download changelog
-                file_name="add_status_column.xml"
-                curl -o $file_name  https://github.com/digitalPlumber23/octopus-transaction/main/schema_changes/$file_name
+                curl -L -o add_status_collumn.xml https://raw.githubusercontent.com/digitalPlumber23/octopus-transaction/main/schema_changes/add_status_collumn.xml
+                
                 
                 echo "Listing contents"
                 ls -l
-                cat $file_name
+                cat add_status_collumn.xml
                 
                 # Run Liquibase using Docker
                 docker run --rm \
                   -v $(pwd):/liquibase/changelog \
                   liquibase/liquibase:latest \
-                  --changeLogFile=changelog/add_status_column.xml \
+                  --changeLogFile=changelog/add_status_collumn.xml \
                   --url=jdbc:postgresql://transaction-db-live:5432/transactions \
                   --username=postgres \
                   --password=postgres \
